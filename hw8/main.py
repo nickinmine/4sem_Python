@@ -10,7 +10,7 @@ def main(arg):
     param2 = []
     for i in param1:
         param2.append(i.split('['))
-        param2[len(param2)-1][0] = param2[len(param2)-1][0][0:].strip()
+        #param2[len(param2)-1][0] = param2[len(param2)-1][0][0:].strip()
         param2[len(param2)-1][1] = param2[len(param2)-1][1].split(';')
     res = {}
     for s in param2:
