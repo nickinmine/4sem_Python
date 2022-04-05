@@ -27,7 +27,7 @@ def funcB(p, baddr):
     r['B2'] = struct.unpack('>d', p[baddr + 12:baddr + 20])[0]
     a4size = struct.unpack('>Q', p[baddr + 20:baddr + 28])[0]
     a4adrr = struct.unpack('>Q', p[baddr + 28:baddr + 36])[0]
-    gy = struct.unpack('>a4size' + '>H', p[a4adrr + 36:a4adrr + 38])[0]
+    gy = struct.unpack('>' + str(a4size) + 'H', p[a4adrr + 36:a4adrr + 36 + a4size])[0]
     caddrlist = struct.unpack('4I', p[baddr + 12:baddr + 28])
     r['B3'] = list()
     for caddr in caddrlist:
