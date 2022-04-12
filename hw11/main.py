@@ -6,64 +6,56 @@ def funcA(p):
     r['A1'] = struct.unpack('>q', p[4:12])[0]
     r['A2'] = struct.unpack('>d', p[12:20])[0]
     r['A3'] = funcB(p, 20)
-    return r
-    a2size = struct.unpack('h', p[4:6])[0]
-    a2addr = struct.unpack('h', p[6:8])[0]
-    t = struct.unpack(str(a2size) + 's', p[a2addr:a2addr + a2size])[0].decode()
-    r['A2'] = t
-    baddr = struct.unpack('h', p[8:10])[0]
-    r['A3'] = funcB(p, baddr)
-    r['A4'] = struct.unpack('i', p[10:14])[0]
-    a5size = struct.unpack('h', p[14:16])[0]
-    a5addr = struct.unpack('I', p[16:20])[0]
-    r['A5'] = list(struct.unpack(str(a5size) + 'b', p[a5addr:a5addr + a5size]))
-    r['A6'] = funcE(p[20:])
+    c2size = struct.unpack('>H', p[42:44])[0]
+    c2addr = struct.unpack('>H', p[44:46])[0]
+    r['A4'] = (struct.unpack('>' + str(c2size) + 'c',
+                             p[c2addr:c2addr + c2size])[0] +
+               struct.unpack('>' + str(c2size) + 'c',
+                             p[c2addr:c2addr + c2size])[1]).decode()
+    r['A5'] = struct.unpack('>B', p[46:47])[0]
+    caddr = struct.unpack('>I', p[47:51])[0]
+    t1 = funcC(p, caddr)
+    caddr = struct.unpack('>I', p[51:55])[0]
+    t2 = funcC(p, caddr)
+    caddr = struct.unpack('>I', p[55:59])[0]
+    t3 = funcC(p, caddr)
+    r['A6'] = [t1, t2, t3]
+    r['A7'] = funcD(p, 59)
+    r['A8'] = list(struct.unpack('>' + str(3) + 'B', p[76:79]))
     return r
 
 
-def funcB(p, baddr):
+def funcB(p, index):
     r = dict()
-    r['B1'] = struct.unpack('>b', p[baddr:baddr + 1])[0]
-    r['B2'] = struct.unpack('>i', p[baddr + 1:baddr + 5])[0]
-    r['B3'] = struct.unpack('>d', p[baddr + 5:baddr + 13])[0]
-    a4size = struct.unpack('>Q', p[baddr + 13:baddr + 21])[0]
-    a4adrr = struct.unpack('>Q', p[baddr + 21:baddr + 29])[0]
-    r['B4'] = list()
-    #r['B4'].append(a4size).append(a4adrr)
-    r['B5'] = struct.unpack('>b', p[baddr + 29:baddr + 30])[0]
-    return r
-    gy = struct.unpack('>' + str(a4size) + 'H', p[a4adrr + 36:a4adrr + 36 + a4size])[0]
-    return r
-    caddrlist = struct.unpack('4I', p[baddr + 12:baddr + 28])
-    r['B3'] = list()
-    for caddr in caddrlist:
-        r['B3'].append(funcC(p, caddr))
-    r['B4'] = funcD(p, baddr + 28)
+    r['B1'] = struct.unpack('>b', p[index:index + 1])[0]
+    r['B2'] = struct.unpack('>i', p[index + 1:index + 5])[0]
+    r['B3'] = struct.unpack('>d', p[index + 5:index + 13])[0]
+    a4size = struct.unpack('>L', p[index + 13:index + 17])[0]
+    a4adrr = struct.unpack('>L', p[index + 17:index + 21])[0]
+    r['B4'] = list(struct.unpack('>' + str(a4size) + 'H',
+                                 p[a4adrr:a4adrr + a4size * 2]))
+    r['B5'] = struct.unpack('>b', p[index + 21:index + 22])[0]
     return r
 
 
-def funcC(p, caddr):
+def funcC(p, index):
     r = dict()
-    r['C1'] = list(struct.unpack('6b', p[caddr:caddr + 6]))
-    r['C2'] = struct.unpack('i', p[caddr + 6:caddr + 10])[0]
+    r['C1'] = struct.unpack('>I', p[index:index + 4])[0]
+    r['C2'] = struct.unpack('>h', p[index + 4:index + 6])[0]
+    r['C3'] = struct.unpack('>B', p[index + 6:index + 7])[0]
+    r['C4'] = struct.unpack('>Q', p[index + 7:index + 15])[0]
     return r
 
 
-def funcD(p, daddr):
+def funcD(p, index):
     r = dict()
-    r['D1'] = struct.unpack('f', p[daddr:daddr + 4])[0]
-    d2size = struct.unpack('H', p[daddr + 4:daddr + 6])[0]
-    d2addr = struct.unpack('H', p[daddr + 6:daddr + 8])[0]
-    r['D2'] = list(struct.unpack(str(d2size) + 'b', p[d2addr:d2addr + d2size]))
-    return r
-
-
-def funcE(p):
-    r = dict()
-    r['E1'] = struct.unpack('B', p[:1])[0]
-    r['E2'] = struct.unpack('B', p[1:2])[0]
-    r['E3'] = struct.unpack('Q', p[2:10])[0]
-    r['E4'] = struct.unpack('Q', p[10:18])[0]
+    r['D1'] = struct.unpack('>L', p[index:index + 4])[0]
+    size = struct.unpack('>L', p[index + 4:index + 8])[0]
+    adrr = struct.unpack('>L', p[index + 8:index + 12])[0]
+    r['D2'] = list(struct.unpack('>' + str(size) + 'Q',
+                                 p[adrr:adrr + size * 8]))
+    r['D3'] = struct.unpack('>i', p[index + 12:index + 16])[0]
+    r['D4'] = struct.unpack('>b', p[index + 16:index + 17])[0]
     return r
 
 
@@ -88,8 +80,9 @@ pack2 = (b'KNTH\x13$\xad\xcb\x05\xa5 \x1c?\xea\xb8\x15\x1c\x80\xef\xf8\x8d\x91\x
          b'\xf9\xbf6Q\r\xf5u')
 
 if __name__ == "__main__":
-    print(main(pack1))
-    # print(main(pack2))
+    #print(main(pack1))
+    print(main(pack2))
+
 
 unpack1 = {'A1': -8541446278474690663,
            'A2': 0.3169207988450542,
