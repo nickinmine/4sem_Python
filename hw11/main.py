@@ -6,12 +6,13 @@ def funcA(p):
     r['A1'] = struct.unpack('>q', p[4:12])[0]
     r['A2'] = struct.unpack('>d', p[12:20])[0]
     r['A3'] = funcB(p, 20)
-    c2size = struct.unpack('>H', p[42:44])[0]
-    c2addr = struct.unpack('>H', p[44:46])[0]
-    r['A4'] = (struct.unpack('>' + str(c2size) + 'c',
-                             p[c2addr:c2addr + c2size])[0] +
-               struct.unpack('>' + str(c2size) + 'c',
-                             p[c2addr:c2addr + c2size])[1]).decode()
+    size = struct.unpack('>H', p[42:44])[0]
+    adr = struct.unpack('>H', p[44:46])[0]
+    r['A4'] = ""
+    for i in range(size):
+        r['A4'] += struct.unpack('>' + str(size) + 'c',
+                             p[adr:adr + size])[0].decode()
+        adr += 1
     r['A5'] = struct.unpack('>B', p[46:47])[0]
     caddr = struct.unpack('>I', p[47:51])[0]
     t1 = funcC(p, caddr)
